@@ -70,6 +70,15 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        .expenditure-box {
+            background-color: #27ae60;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -92,13 +101,15 @@
 
         <div class="card">
             <h2>Employee Login</h2>
-            <input type="email" id="emp-email" placeholder="Email (employee@gmail.com)">
+            <p style="font-size: 14px; color: #aaa;">Any employee email can log in with the shared password.</p>
+            <input type="email" id="emp-email" placeholder="Your Work Email">
             <input type="password" id="emp-password" placeholder="Password (202003)">
             <button onclick="login('employee')">Login as Employee</button>
         </div>
 
         <div class="card">
             <h2>Admin Login</h2>
+            <p style="font-size: 14px; color: #aaa;">Strictly limited to the single system admin.</p>
             <input type="email" id="admin-email" placeholder="Email (admin@gmail.com)">
             <input type="password" id="admin-password" placeholder="Password (261999)">
             <button onclick="login('admin')">Login as Admin</button>
@@ -111,6 +122,10 @@
 <div id="admin-dashboard" class="container" style="display: none;">
     <button class="logout-btn" onclick="logout()">Logout</button>
     <h1>Admin Dashboard</h1>
+
+    <div id="total-expenditure" class="expenditure-box">
+        Total System Expenditure: $0.00
+    </div>
 
     <div id="low-stock-warning" class="warning-box" style="display: none;"></div>
 
@@ -160,9 +175,16 @@
 </div>
 
 <script>
-    // Data Storage Arrays
-    let inventory = []; // Array of objects: { name, qty, price }
-    let assignments = []; // Array of objects: { empName, product, qty }
+    // --- DATA STORAGE & SAVING LOGIC ---
+    // Load data from LocalStorage if it exists, otherwise start with empty arrays
+    let inventory = JSON.parse(localStorage.getItem('inventoryData')) || [];
+    let assignments = JSON.parse(localStorage.getItem('assignmentsData')) || [];
+
+    function saveData() {
+        // Save current arrays to the browser's memory
+        localStorage.setItem('inventoryData', JSON.stringify(inventory));
+        localStorage.setItem('assignmentsData', JSON.stringify(assignments));
+    }
 
     // --- LOGIN LOGIC ---
     function login(role) {
@@ -173,6 +195,7 @@
             const email = document.getElementById('admin-email').value.trim();
             const pass = document.getElementById('admin-password').value.trim();
 
+            // ONLY one admin allowed
             if (email === 'admin@gmail.com' && pass === '261999') {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
@@ -184,7 +207,8 @@
             const email = document.getElementById('emp-email').value.trim();
             const pass = document.getElementById('emp-password').value.trim();
 
-            if (email === 'employee@gmail.com' && pass === '202003') {
+            // Unlimited employees: Accepts ANY email, as long as password is correct
+            if (email !== '' && pass === '202003') {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('employee-dashboard').style.display = 'block';
                 updateEmployeeUI();
@@ -195,33 +219,31 @@
     }
 
     function logout() {
-        // Clear passwords
         document.getElementById('admin-password').value = '';
         document.getElementById('emp-password').value = '';
 
-        // Hide dashboards, show login
         document.getElementById('admin-dashboard').style.display = 'none';
         document.getElementById('employee-dashboard').style.display = 'none';
         document.getElementById('login-screen').style.display = 'block';
     }
 
-    // --- ADMIN FUNCTIONS (WRITE & EDIT) ---
+    // --- ADMIN FUNCTIONS ---
     function addInventory() {
         const product = document.getElementById('inv-product').value.trim();
         const qty = parseInt(document.getElementById('inv-qty').value);
         const price = parseFloat(document.getElementById('inv-price').value);
 
         if (product && qty > 0 && price >= 0) {
-            // Check if item already exists to update it, otherwise create new
             let existingItem = inventory.find(item => item.name.toLowerCase() === product.toLowerCase());
             if (existingItem) {
                 existingItem.qty += qty;
-                existingItem.price += price; // Add to total value
+                existingItem.price += price;
             } else {
                 inventory.push({ name: product, qty: qty, price: price });
             }
 
-            // Clear inputs
+            saveData(); // Save to LocalStorage
+
             document.getElementById('inv-product').value = '';
             document.getElementById('inv-qty').value = '';
             document.getElementById('inv-price').value = '';
@@ -244,11 +266,11 @@
                 return;
             }
 
-            // Deduct from inventory and record assignment
             existingItem.qty -= qty;
             assignments.push({ empName: emp, product: existingItem.name, qty: qty });
 
-            // Clear inputs
+            saveData(); // Save to LocalStorage
+
             document.getElementById('assign-emp').value = '';
             document.getElementById('assign-product').value = '';
             document.getElementById('assign-qty').value = '';
@@ -259,22 +281,21 @@
     }
 
     function editInventory(index) {
-        // Prompts the admin to type a new quantity
         let currentItem = inventory[index];
         let newQty = prompt(`Edit Quantity for ${currentItem.name}:`, currentItem.qty);
 
-        // If they didn't hit cancel, update the array
         if (newQty !== null && newQty.trim() !== "" && !isNaN(newQty)) {
             inventory[index].qty = parseInt(newQty);
-            updateAdminUI(); // Refresh the table
+            saveData(); // Save changes
+            updateAdminUI();
         }
     }
 
     // --- UI UPDATING LOGIC ---
     function updateAdminUI() {
         checkLowStock();
+        updateExpenditure(); // Calculate Total Cost
 
-        // Build Admin Inventory Table (With Edit Buttons)
         const invTable = document.getElementById('admin-inventory-table');
         invTable.innerHTML = '<tr><th>Product Name</th><th>Stock Qty</th><th>Total Amount ($)</th><th>Actions</th></tr>';
 
@@ -288,7 +309,6 @@
                 </tr>`;
         });
 
-        // Build Admin Assignments Table
         const assignTable = document.getElementById('admin-assign-table');
         assignTable.innerHTML = '<tr><th>Given To</th><th>Product</th><th>Quantity Out</th></tr>';
         assignments.forEach(a => {
@@ -297,14 +317,12 @@
     }
 
     function updateEmployeeUI() {
-        // Build Employee Inventory Table (No Edit Buttons)
         const empInvTable = document.getElementById('employee-inventory-table');
         empInvTable.innerHTML = '<tr><th>Product Name</th><th>Stock Qty</th></tr>';
         inventory.forEach(item => {
             empInvTable.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}</td></tr>`;
         });
 
-        // Build Employee Assignments Table
         const empAssignTable = document.getElementById('employee-assign-table');
         empAssignTable.innerHTML = '<tr><th>Given To</th><th>Product</th><th>Quantity Out</th></tr>';
         assignments.forEach(a => {
@@ -312,13 +330,24 @@
         });
     }
 
+    function updateExpenditure() {
+        // Sums up all the prices in the inventory array
+        let total = 0;
+        inventory.forEach(item => {
+            total += item.price;
+        });
+        document.getElementById('total-expenditure').innerHTML = `Total System Expenditure: $${total.toFixed(2)}`;
+    }
+
     function checkLowStock() {
         const warningBox = document.getElementById('low-stock-warning');
         let lowItems = [];
 
         inventory.forEach(item => {
-            if (item.qty < 10) {
+            if (item.qty < 10 && item.qty > 0) { // Don't warn if stock is exactly 0, or maybe we should? Let's warn if less than 10.
                 lowItems.push(`${item.name} (Only ${item.qty} left)`);
+            } else if (item.qty <= 0) {
+                lowItems.push(`${item.name} (OUT OF STOCK)`);
             }
         });
 
