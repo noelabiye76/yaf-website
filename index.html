@@ -3,39 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Management Dashboard</title>
+    <title>Professional Inventory & Staff Manager</title>
     <style>
         /* Modernized Font and Reset */
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #0f172a; /* Sleek dark slate background */
+            background-color: #0f172a;
             color: #f8fafc;
             margin: 0;
             padding: 30px 20px;
         }
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* Typography */
         h1 { color: #ffffff; font-size: 2.2rem; margin-bottom: 25px; border-bottom: 2px solid #334155; padding-bottom: 10px; }
         h2 { color: #e2e8f0; font-size: 1.4rem; font-weight: 600; margin-top: 0; }
         p { color: #94a3b8; line-height: 1.5; }
 
-        /* Layout */
-        .login-split, .grid {
+        .grid {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
+        @media (max-width: 1024px) {
+            .grid > .card { flex: 1 1 calc(50% - 20px); }
+        }
         @media (max-width: 768px) {
-            .login-split, .grid { flex-direction: column; }
+            .grid > .card { flex: 1 1 100%; }
         }
 
-        /* Cards */
         .card {
             background-color: #1e293b;
             padding: 25px;
@@ -45,62 +46,48 @@
             flex: 1;
         }
 
-        /* Inputs */
-        input {
+        input, select {
             width: 100%;
             padding: 12px 15px;
-            margin: 10px 0 15px 0;
+            margin: 8px 0 15px 0;
             border: 1px solid #475569;
             border-radius: 8px;
             background-color: #0f172a;
             color: #f8fafc;
             font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-        input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
 
-        /* Buttons */
         button {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background-color: #3b82f6;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.2s ease;
+            transition: 0.2s;
         }
-        button:hover { background-color: #2563eb; transform: translateY(-1px); }
+        button:hover { background-color: #2563eb; }
 
-        .logout-btn {
+        .export-btn {
+            background-color: #10b981;
+            margin-bottom: 20px;
             width: auto;
-            background-color: #ef4444;
-            float: right;
-            padding: 10px 20px;
-            margin-top: 5px;
+            padding: 12px 25px;
         }
-        .logout-btn:hover { background-color: #dc2626; }
+        .export-btn:hover { background-color: #059669; }
 
-        .edit-btn { background-color: #f59e0b; padding: 8px 12px; font-size: 0.85rem; width: auto; margin-right: 5px; }
-        .edit-btn:hover { background-color: #d97706; }
+        .logout-btn { width: auto; background-color: #ef4444; float: right; padding: 10px 20px; }
 
-        .delete-btn { background-color: #ef4444; padding: 8px 12px; font-size: 0.85rem; width: auto; }
-        .delete-btn:hover { background-color: #dc2626; }
+        .delete-btn { background-color: #ef4444; padding: 6px 10px; font-size: 0.8rem; width: auto; }
+        .edit-btn { background-color: #f59e0b; padding: 6px 10px; font-size: 0.8rem; width: auto; margin-right: 5px; }
 
-        /* Dashboard Banners */
         .warning-box {
             background-color: rgba(239, 68, 68, 0.1);
             color: #fca5a5;
             border: 1px solid #ef4444;
-            padding: 15px 20px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            padding: 15px;
             border-radius: 8px;
             margin-bottom: 25px;
         }
@@ -108,339 +95,281 @@
             background-color: rgba(16, 185, 129, 0.1);
             color: #6ee7b7;
             border: 1px solid #10b981;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
+            font-size: 1.1rem;
             margin-bottom: 25px;
         }
 
-        /* Tables */
         .history-section {
             background-color: #1e293b;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             border: 1px solid #334155;
             margin-bottom: 30px;
+            overflow-x: auto;
         }
         table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-bottom: 30px;
+            border-collapse: collapse;
             margin-top: 15px;
+            margin-bottom: 20px;
         }
         th, td {
-            padding: 15px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #334155;
         }
-        th {
-            background-color: #0f172a;
-            color: #94a3b8;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        th:first-child { border-top-left-radius: 8px; }
-        th:last-child { border-top-right-radius: 8px; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
+        th { background-color: #0f172a; color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <div id="login-screen" class="container">
     <h1>System Login</h1>
-    <div class="login-split">
-
+    <div class="grid">
         <div class="card">
-            <h2>Employee Login</h2>
-            <p style="font-size: 13px;">View-only access for general staff.</p>
-            <input type="email" id="emp-email" placeholder="Your Work Email">
+            <h2>Employee Portal</h2>
+            <input type="email" id="emp-email" placeholder="Email">
             <input type="password" id="emp-password" placeholder="Password">
-            <button onclick="login('employee')">Login as Employee</button>
+            <button onclick="login('employee')">Login</button>
         </div>
-
         <div class="card">
-            <h2>Admin Login</h2>
-            <p style="font-size: 13px;">Full system control. Authorized personnel only.</p>
+            <h2>Admin Portal</h2>
             <input type="email" id="admin-email" placeholder="Admin Email">
             <input type="password" id="admin-password" placeholder="Password">
-            <button onclick="login('admin')">Login as Admin</button>
+            <button onclick="login('admin')">Login</button>
         </div>
-
     </div>
-    <p id="login-error" style="color: #fca5a5; background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 6px; display: none; font-weight: bold; text-align: center;">Incorrect Email or Password!</p>
+    <p id="login-error" style="color: #ef4444; display: none; text-align: center;">Invalid Credentials</p>
 </div>
 
 <div id="admin-dashboard" class="container" style="display: none;">
     <button class="logout-btn" onclick="logout()">Logout</button>
     <h1>Admin Dashboard</h1>
 
-    <div id="total-expenditure" class="expenditure-box">
-        Total System Expenditure: $0.00
-    </div>
+    <button class="export-btn" onclick="exportToExcel()">Download Excel Report</button>
 
+    <div id="total-expenditure" class="expenditure-box">Total Expenditure: $0.00</div>
     <div id="low-stock-warning" class="warning-box" style="display: none;"></div>
 
     <div class="grid">
         <div class="card">
-            <h2>Record New Inventory</h2>
+            <h2>New Inventory</h2>
             <input type="text" id="inv-product" placeholder="Product Name">
             <input type="number" id="inv-qty" placeholder="Quantity">
-            <input type="number" id="inv-price" placeholder="Total Amount/Price ($)">
-            <button onclick="addInventory()">Add to Records</button>
+            <input type="number" id="inv-price" placeholder="Total Price ($)">
+            <button onclick="addInventory()">Add Product</button>
         </div>
 
         <div class="card">
-            <h2>Assign Item Out</h2>
-            <input type="text" id="assign-emp" placeholder="Employee Receiving Item">
+            <h2>Assign Item</h2>
+            <input type="text" id="assign-emp" placeholder="Employee Name">
             <input type="text" id="assign-product" placeholder="Product Name">
-            <input type="number" id="assign-qty" placeholder="Quantity to Give">
-            <button onclick="assignItem()">Record Assignment</button>
+            <input type="number" id="assign-qty" placeholder="Quantity">
+            <button onclick="assignItem()">Confirm Assignment</button>
+        </div>
+
+        <div class="card">
+            <h2>Register Employee</h2>
+            <input type="text" id="reg-name" placeholder="Full Name">
+            <input type="number" id="reg-age" placeholder="Age">
+            <select id="reg-gender">
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            <button onclick="registerEmployee()">Register</button>
         </div>
     </div>
 
     <div class="history-section">
-        <h2>Master Inventory List</h2>
-        <table id="admin-inventory-table">
-        </table>
+        <h2>Employee Directory</h2>
+        <table id="admin-employee-table"></table>
 
-        <h2 style="margin-top: 20px;">Assignment History (Outgoing)</h2>
-        <table id="admin-assign-table">
-        </table>
+        <h2>Master Inventory</h2>
+        <table id="admin-inventory-table"></table>
+
+        <h2>Assignment History</h2>
+        <table id="admin-assign-table"></table>
     </div>
 </div>
 
 <div id="employee-dashboard" class="container" style="display: none;">
     <button class="logout-btn" onclick="logout()">Logout</button>
-    <h1>Employee Dashboard</h1>
-    <p style="margin-bottom: 25px;">View-only access to current system records.</p>
-
+    <h1>Employee View</h1>
     <div class="history-section">
-        <h2>Current Inventory Status</h2>
-        <table id="employee-inventory-table">
-        </table>
-
-        <h2 style="margin-top: 20px;">Assignment Records</h2>
-        <table id="employee-assign-table">
-        </table>
+        <h2>Inventory Status</h2>
+        <table id="employee-inventory-table"></table>
+        <h2>My Assignments</h2>
+        <table id="employee-assign-table"></table>
     </div>
 </div>
 
 <script>
-    // --- DATA STORAGE & SAVING LOGIC ---
     let inventory = JSON.parse(localStorage.getItem('inventoryData')) || [];
     let assignments = JSON.parse(localStorage.getItem('assignmentsData')) || [];
+    let employees = JSON.parse(localStorage.getItem('employeeData')) || [];
 
     function saveData() {
         localStorage.setItem('inventoryData', JSON.stringify(inventory));
         localStorage.setItem('assignmentsData', JSON.stringify(assignments));
+        localStorage.setItem('employeeData', JSON.stringify(employees));
     }
 
-    // --- LOGIN LOGIC ---
+    // --- LOGIC ---
+
     function login(role) {
-        const errorMsg = document.getElementById('login-error');
-        errorMsg.style.display = 'none';
-
-        if (role === 'admin') {
-            const email = document.getElementById('admin-email').value.trim();
-            const pass = document.getElementById('admin-password').value.trim();
-
-            if (email === 'admin@gmail.com' && pass === '261999') {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-dashboard').style.display = 'block';
-                updateAdminUI();
-            } else {
-                errorMsg.style.display = 'block';
-            }
-        } else if (role === 'employee') {
-            const email = document.getElementById('emp-email').value.trim();
-            const pass = document.getElementById('emp-password').value.trim();
-
-            if (email !== '' && pass === '202003') {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('employee-dashboard').style.display = 'block';
-                updateEmployeeUI();
-            } else {
-                errorMsg.style.display = 'block';
-            }
+        if (role === 'admin' && document.getElementById('admin-email').value === 'admin@gmail.com' && document.getElementById('admin-password').value === '261999') {
+            showDashboard('admin-dashboard');
+            updateAdminUI();
+        } else if (role === 'employee' && document.getElementById('emp-password').value === '202003') {
+            showDashboard('employee-dashboard');
+            updateEmployeeUI();
+        } else {
+            document.getElementById('login-error').style.display = 'block';
         }
     }
 
-    function logout() {
-        document.getElementById('admin-password').value = '';
-        document.getElementById('emp-password').value = '';
-        document.getElementById('admin-dashboard').style.display = 'none';
-        document.getElementById('employee-dashboard').style.display = 'none';
-        document.getElementById('login-screen').style.display = 'block';
+    function showDashboard(id) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById(id).style.display = 'block';
     }
 
-    // --- ADMIN FUNCTIONS ---
+    function logout() { location.reload(); }
+
+    function registerEmployee() {
+        const name = document.getElementById('reg-name').value.trim();
+        const age = document.getElementById('reg-age').value;
+        const gender = document.getElementById('reg-gender').value;
+
+        if (name && age && gender) {
+            employees.push({ name, age, gender });
+            saveData();
+            document.getElementById('reg-name').value = '';
+            document.getElementById('reg-age').value = '';
+            document.getElementById('reg-gender').value = '';
+            updateAdminUI();
+        } else { alert("Fill all employee fields"); }
+    }
+
     function addInventory() {
-        const product = document.getElementById('inv-product').value.trim();
+        const name = document.getElementById('inv-product').value.trim();
         const qty = parseInt(document.getElementById('inv-qty').value);
         const price = parseFloat(document.getElementById('inv-price').value);
 
-        if (product && qty > 0 && price >= 0) {
-            let existingItem = inventory.find(item => item.name.toLowerCase() === product.toLowerCase());
-            if (existingItem) {
-                existingItem.qty += qty;
-                existingItem.price += price;
-            } else {
-                inventory.push({ name: product, qty: qty, price: price });
-            }
-
+        if (name && qty > 0) {
+            let item = inventory.find(i => i.name.toLowerCase() === name.toLowerCase());
+            if (item) { item.qty += qty; item.price += price; }
+            else { inventory.push({ name, qty, price }); }
             saveData();
-            document.getElementById('inv-product').value = '';
-            document.getElementById('inv-qty').value = '';
-            document.getElementById('inv-price').value = '';
             updateAdminUI();
-        } else {
-            alert("Please fill out Product Name, a valid Quantity, and Amount.");
         }
     }
 
     function assignItem() {
-        const emp = document.getElementById('assign-emp').value.trim();
+        const empName = document.getElementById('assign-emp').value.trim();
         const product = document.getElementById('assign-product').value.trim();
         const qty = parseInt(document.getElementById('assign-qty').value);
 
-        if (emp && product && qty > 0) {
-            let existingItem = inventory.find(item => item.name.toLowerCase() === product.toLowerCase());
-
-            if (!existingItem || existingItem.qty < qty) {
-                alert("Not enough stock in inventory to assign this amount!");
-                return;
-            }
-
-            existingItem.qty -= qty;
-            assignments.push({ empName: emp, product: existingItem.name, qty: qty });
-
-            saveData();
-            document.getElementById('assign-emp').value = '';
-            document.getElementById('assign-product').value = '';
-            document.getElementById('assign-qty').value = '';
-            updateAdminUI();
-        } else {
-            alert("Please fill out all assignment fields correctly.");
+        // VALIDATION: Check if employee exists
+        const empExists = employees.find(e => e.name.toLowerCase() === empName.toLowerCase());
+        if (!empExists) {
+            alert("Error: This employee is not registered in the system!");
+            return;
         }
-    }
 
-    function editInventory(index) {
-        let currentItem = inventory[index];
-        let newQty = prompt(`Edit Quantity for ${currentItem.name}:`, currentItem.qty);
-
-        if (newQty !== null && newQty.trim() !== "" && !isNaN(newQty)) {
-            inventory[index].qty = parseInt(newQty);
+        let item = inventory.find(i => i.name.toLowerCase() === product.toLowerCase());
+        if (item && item.qty >= qty) {
+            item.qty -= qty;
+            assignments.push({ empName, product: item.name, qty, date: new Date().toLocaleDateString() });
             saveData();
             updateAdminUI();
-        }
+        } else { alert("Stock unavailable or product not found"); }
     }
 
-    // NEW FUNCTION: Delete Inventory Record
-    function deleteInventory(index) {
-        if (confirm(`Are you sure you want to permanently delete '${inventory[index].name}' from the inventory?`)) {
-            inventory.splice(index, 1);
-            saveData();
-            updateAdminUI();
-        }
-    }
+    // --- UI ---
 
-    // NEW FUNCTION: Delete Assignment Record
-    function deleteAssignment(index) {
-        if (confirm(`Are you sure you want to delete the assignment record for '${assignments[index].product}' to ${assignments[index].empName}?`)) {
-            assignments.splice(index, 1);
-            saveData();
-            updateAdminUI();
-        }
-    }
-
-    // --- UI UPDATING LOGIC ---
     function updateAdminUI() {
-        checkLowStock();
+        renderTable('admin-employee-table', ['Name', 'Age', 'Gender', 'Actions'], employees, (e, i) => `
+            <td>${e.name}</td><td>${e.age}</td><td>${e.gender}</td>
+            <td><button class="delete-btn" onclick="deleteItem('employees', ${i})">Delete</button></td>
+        `);
+
+        renderTable('admin-inventory-table', ['Product', 'Stock', 'Value', 'Actions'], inventory, (item, i) => `
+            <td>${item.name}</td><td>${item.qty}</td><td>$${item.price.toFixed(2)}</td>
+            <td><button class="delete-btn" onclick="deleteItem('inventory', ${i})">Delete</button></td>
+        `);
+
+        renderTable('admin-assign-table', ['Employee', 'Product', 'Qty', 'Actions'], assignments, (a, i) => `
+            <td>${a.empName}</td><td>${a.product}</td><td>${a.qty}</td>
+            <td><button class="delete-btn" onclick="deleteItem('assignments', ${i})">Delete</button></td>
+        `);
+
         updateExpenditure();
-
-        const invTable = document.getElementById('admin-inventory-table');
-        invTable.innerHTML = '<tr><th>Product Name</th><th>Stock Qty</th><th>Total Amount ($)</th><th>Actions</th></tr>';
-
-        inventory.forEach((item, index) => {
-            // Added the Delete button to the actions column
-            invTable.innerHTML += `
-                <tr>
-                    <td><strong>${item.name}</strong></td>
-                    <td>${item.qty}</td>
-                    <td>$${item.price.toFixed(2)}</td>
-                    <td>
-                        <button class="edit-btn" onclick="editInventory(${index})">Edit Qty</button>
-                        <button class="delete-btn" onclick="deleteInventory(${index})">Delete</button>
-                    </td>
-                </tr>`;
-        });
-
-        const assignTable = document.getElementById('admin-assign-table');
-        // Added Actions column header for assignments
-        assignTable.innerHTML = '<tr><th>Given To</th><th>Product</th><th>Quantity Out</th><th>Actions</th></tr>';
-        assignments.forEach((a, index) => {
-            // Added Delete button for individual assignment records
-            assignTable.innerHTML += `
-                <tr>
-                    <td>${a.empName}</td>
-                    <td>${a.product}</td>
-                    <td>${a.qty}</td>
-                    <td>
-                        <button class="delete-btn" onclick="deleteAssignment(${index})">Delete</button>
-                    </td>
-                </tr>`;
-        });
+        checkStock();
     }
 
     function updateEmployeeUI() {
-        const empInvTable = document.getElementById('employee-inventory-table');
-        empInvTable.innerHTML = '<tr><th>Product Name</th><th>Stock Qty</th></tr>';
-        inventory.forEach(item => {
-            empInvTable.innerHTML += `<tr><td><strong>${item.name}</strong></td><td>${item.qty}</td></tr>`;
-        });
-
-        const empAssignTable = document.getElementById('employee-assign-table');
-        empAssignTable.innerHTML = '<tr><th>Given To</th><th>Product</th><th>Quantity Out</th></tr>';
-        assignments.forEach(a => {
-            empAssignTable.innerHTML += `<tr><td>${a.empName}</td><td>${a.product}</td><td>${a.qty}</td></tr>`;
-        });
+        renderTable('employee-inventory-table', ['Product', 'Stock'], inventory, i => `<td>${i.name}</td><td>${i.qty}</td>`);
+        renderTable('employee-assign-table', ['Product', 'Qty', 'Date'], assignments, a => `<td>${a.product}</td><td>${a.qty}</td><td>${a.date}</td>`);
     }
 
-    function updateExpenditure() {
-        let total = 0;
-        inventory.forEach(item => {
-            total += item.price;
-        });
-        document.getElementById('total-expenditure').innerHTML = `Total System Expenditure: $${total.toFixed(2)}`;
+    function renderTable(id, headers, data, rowFunc) {
+        const table = document.getElementById(id);
+        let html = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+        data.forEach((item, i) => { html += `<tr>${rowFunc(item, i)}</tr>`; });
+        table.innerHTML = html;
     }
 
-    function checkLowStock() {
-        const warningBox = document.getElementById('low-stock-warning');
-        let lowItems = [];
-
-        inventory.forEach(item => {
-            if (item.qty < 10 && item.qty > 0) {
-                lowItems.push(`&#9888; ${item.name} (Only ${item.qty} left)`);
-            } else if (item.qty <= 0) {
-                lowItems.push(`&#10060; ${item.name} (OUT OF STOCK)`);
-            }
-        });
-
-        if (lowItems.length > 0) {
-            warningBox.style.display = 'block';
-            warningBox.innerHTML = `LOW STOCK ALERT: <br><br> ${lowItems.join('<br>')}`;
-        } else {
-            warningBox.style.display = 'none';
+    function deleteItem(type, index) {
+        if (confirm("Delete this record?")) {
+            if (type === 'employees') employees.splice(index, 1);
+            if (type === 'inventory') inventory.splice(index, 1);
+            if (type === 'assignments') assignments.splice(index, 1);
+            saveData();
+            updateAdminUI();
         }
     }
 
+    function updateExpenditure() {
+        let total = inventory.reduce((sum, i) => sum + i.price, 0);
+        document.getElementById('total-expenditure').innerText = `Total Expenditure: $${total.toFixed(2)}`;
+    }
 
+    function checkStock() {
+        const low = inventory.filter(i => i.qty < 5).map(i => i.name);
+        const box = document.getElementById('low-stock-warning');
+        if (low.length) {
+            box.style.display = 'block';
+            box.innerHTML = `⚠️ Low Stock: ${low.join(', ')}`;
+        } else box.style.display = 'none';
+    }
+
+    // --- EXPORT TO EXCEL ---
+    function exportToExcel() {
+        let html = `
+            <h3>Employee Directory</h3>
+            <table border="1"><tr><th>Name</th><th>Age</th><th>Gender</th></tr>
+            ${employees.map(e => `<tr><td>${e.name}</td><td>${e.age}</td><td>${e.gender}</td></tr>`).join('')}</table>
+            <br>
+            <h3>Inventory</h3>
+            <table border="1"><tr><th>Product</th><th>Qty</th><th>Price</th></tr>
+            ${inventory.map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>${i.price}</td></tr>`).join('')}</table>
+            <br>
+            <h3>Assignments</h3>
+            <table border="1"><tr><th>Employee</th><th>Product</th><th>Qty</th></tr>
+            ${assignments.map(a => `<tr><td>${a.empName}</td><td>${a.product}</td><td>${a.qty}</td></tr>`).join('')}</table>
+        `;
+
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Inventory_Report.xls';
+        a.click();
+    }
 </script>
 </body>
 </html>
